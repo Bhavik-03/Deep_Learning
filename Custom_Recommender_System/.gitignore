@@ -4,3 +4,4 @@ __pycache__/
 venv/
 myenv/
 *.pkl
+Movie_Recommender_System/
