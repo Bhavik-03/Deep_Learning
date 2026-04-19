@@ -1,21 +1,31 @@
 import streamlit as st
 import pandas as pd
-import requests
 import pickle
+import gdown
 
-# 🔥 Cache function (important)
+# 🔥 Cache + download once
 @st.cache_data
-def load_pickle(url):
-    response = requests.get(url)
-    return pickle.loads(response.content)
+def load_pickle_from_drive(file_id, output):
+    url = f"https://drive.google.com/uc?id={file_id}"
+    gdown.download(url, output, quiet=True)
+    
+    with open(output, 'rb') as f:
+        return pickle.load(f)
 
 st.title("Movie Recommender")
 
-# 🔗 Load data from Google Drive
-movies = load_pickle("https://drive.google.com/uc?id=1eL4DCggPcYJGOC5Zod9vVnwKs1TwqNRp")
-movies = pd.DataFrame(movies)
+# 🔗 Load data
+movies = load_pickle_from_drive(
+    "1eL4DCggPcYJGOC5Zod9vVnwKs1TwqNRp",
+    "movies.pkl"
+)
 
-similarity = load_pickle("https://drive.google.com/uc?id=1jr82QsZlLIrTePniLrc1mYjw81xf0Er2")
+similarity = load_pickle_from_drive(
+    "1jr82QsZlLIrTePniLrc1mYjw81xf0Er2",
+    "similarity.pkl"
+)
+
+movies = pd.DataFrame(movies)
 
 # 🎯 UI
 selected_movie = st.selectbox(
@@ -23,10 +33,10 @@ selected_movie = st.selectbox(
     movies['title'].tolist()
 )
 
-# 🧠 Recommendation logic
+# 🧠 Logic
 def recommend(movie):
     movie_idx = movies[movies['title'] == movie].index[0]
-    
+
     movie_list = sorted(
         list(enumerate(similarity[movie_idx])),
         reverse=True,
@@ -39,7 +49,5 @@ def recommend(movie):
 st.subheader("Recommended Movies:")
 
 if st.button("Recommend"):
-    recommendations = recommend(selected_movie)
-
-    for movie in recommendations:
+    for movie in recommend(selected_movie):
         st.write(movie)
