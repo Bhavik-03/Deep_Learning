@@ -1,5 +1,3 @@
-# Deep_Learning-Projects
-
 # Deep Learning Projects
 
 This repository contains multiple machine learning and deep learning projects, covering computer vision and recommendation systems.
